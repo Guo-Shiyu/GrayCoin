@@ -2,10 +2,11 @@
 #include <string>
 #include <tuple>
 #include <memory>
+#include <optional>
 #include <variant>
 
 // pure virtual class marker
-#define abstract
+#define abstract      
 
 // abstract class iAsStr
 // {
@@ -40,10 +41,11 @@ public:
 enum class OpKind : int
 {
     // command with params are less than zero
-    AddTeam = -4,
-    Start = -3,
-    Submit = -2,
-    Query = -1,
+    AddTeam = -5,
+    Start = -4,
+    Submit = -3,
+    QueryRank = -2,
+    QuerySub = -1,
 
     // command without params are greater than zero
     Flush = 1,
@@ -75,14 +77,17 @@ using StartGameArg = std::tuple<size_t, size_t>;
 // problem name + team name + submit status + submit time
 using SubmitArg = std::tuple<std::string, std::string, Status, size_t>;
 
+//// team name
+using QueryRankArg = AddTeamArg;
+
 // team name + problem name + submit status
-using QueryArg = std::tuple<std::string, std::string, Status>;
+using QuerySubArg = std::tuple<std::string, std::string, Status>;
 
 // base class for input command ( a line of file '*.in' )
 class Instruction
 {
 public:
-    using ParamPack = std::variant<AddTeamArg, StartGameArg, SubmitArg, QueryArg>;
+    using ParamPack = std::variant<AddTeamArg, StartGameArg, SubmitArg, QuerySubArg /*QueryRankArg = AddTeamArg*/>;
 private:
     // read-only variable
     Operation opcode_;
@@ -91,9 +96,11 @@ private:
 public:
     Instruction() = delete;
     Instruction(const Instruction&) = default;
-    // Instruction(Operation opcode) : opcode_(opcode) {};
-    Instruction(OpKind no_param_kind) : opcode_(no_param_kind) {};
-    Instruction(AddTeamArg&& arg) : opcode_(OpKind::AddTeam), args_(arg) {};
+    Instruction(OpKind no_param_kind) : opcode_(no_param_kind), args_() {}
+    Instruction(OpKind with_param_kind, ParamPack&& arg_pack) : opcode_(with_param_kind), args_(arg_pack) {}
+
+    // especiallly 
+    Instruction(std::tuple<std::string>&& arg, bool is_addteam) : opcode_(is_addteam? OpKind::AddTeam: OpKind::QueryRank), args_(arg){};
 
     const Operation& opcode() const { return opcode_; }
     bool has_params() const { return this->opcode_.as_int() < 0; }
