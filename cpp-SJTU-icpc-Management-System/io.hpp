@@ -12,8 +12,11 @@ using InputSeq = std::deque<Command>;
 // get status enum from string 
 Status GetSubStatusEnumFromString(std::string stmt)
 {
+    if (stmt.starts_with("ALL"))
+        return SubStatus::Any;
+
     SubStatus state = SubStatus::A;
-    if (stmt.starts_with("A"))
+    if (stmt.starts_with("Ac"))
         ;// do nothing 
     else if (stmt.starts_with("W"))
         state = SubStatus::W;
@@ -31,11 +34,11 @@ Command GenCommandFromLine(std::string line)
     static bool init_flag{ false };
     if (not init_flag)
     {
-        HashInput.emplace(OpKind::AddTeam,      R"(^ADDTEAM\s?(\w+)$)");
-        HashInput.emplace(OpKind::Start,        R"(^([A-Z]|\s)+(\d+)([A-Z]|\s)+(\d+)$)");
-        HashInput.emplace(OpKind::Submit,       R"(^SUBMIT\s(\w)\sBY\s(\w+)\sWITH\s(\w+)\sAT\s\d+$)");
-        HashInput.emplace(OpKind::QueryRank,    R"(^QUERY_RANKING\s(\w+)$)");
-        HashInput.emplace(OpKind::QuerySub,     R"(^QUERY_SUBMISSION\s(\w+)\s(\w|\s)+=(\w+)(\s|\w)+=(\w+)$)");
+        HashInput.emplace(OpKind::AddTeam,      R"(ADDTEAM\s?(\w+))");
+        HashInput.emplace(OpKind::Start,        R"(([A-Z]|\s)+(\d+)([A-Z]|\s)+(\d+))");
+        HashInput.emplace(OpKind::Submit,       R"(SUBMIT\s(\w)\sBY\s(\w+)\sWITH\s(\w+)\sAT\s\d+)");
+        HashInput.emplace(OpKind::QueryRank,    R"(QUERY_RANKING\s(\w+))");
+        HashInput.emplace(OpKind::QuerySub,     R"(QUERY_SUBMISSION\s(\w+)\s(\w|\s)+=(\w+)(\s|\w)+=(\w+))");
         init_flag = true;
     }
 
@@ -89,7 +92,7 @@ Command GenCommandFromLine(std::string line)
 
     case OpKind::QueryRank:
         return std::make_shared<Instruction>(OpKind::QueryRank, AddTeamArg(match_seq[1].str()));
-                                                            // ^^^^^^^^^ here is correct, do not change it
+                                                             // ^^^^^^^^^ here is correct, do not change it
 
     case OpKind::QuerySub:
     {

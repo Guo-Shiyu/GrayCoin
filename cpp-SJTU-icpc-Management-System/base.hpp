@@ -17,7 +17,11 @@
 
 enum class SubStatus : int
 {
-    A,
+    // only used in query submission 
+    Any = 0,
+
+    // available to store 
+    A = 1,
     W,
     R,
     T,
