@@ -4,7 +4,6 @@
 const char*  FILE_PATH = "D:\\qq\\2821006329\\filerecv\\data.csv";
 const char*  LINE_FORMAT = " %lf,%lf,%lf\n";
 
-const double constant = -log(2 * 3.14159265358);
 const double alpha = 0.1;
 const double beta = 0.1;
 const int    maxn = 1000;
@@ -32,7 +31,7 @@ int main()
     }
 
     // calcualte first part
-    double first = (double)maxn * constant;
+    double first = (double)maxn * -log(2 * 3.14159265358);
     result = first - result / 2;
     printf("%lf", result);
 }

@@ -1,0 +1,32 @@
+# Project: cpp-Dynamic-Clock-With-EGE
+# Makefile created by Dev-C++ 6.7.5
+
+CPP      = g++.exe
+CC       = gcc.exe
+WINDRES  = windres.exe
+OBJ      = main.o class.o
+LINKOBJ  = main.o class.o
+LIBS     = -L"D:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/10.3.0/" -L"D:/Dev-Cpp/MinGW64/lib/gcc/" -L"D:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib/" -L"D:/Dev-Cpp/MinGW64/lib/" -L"D:/Dev-Cpp/MinGW64/lib" -L"D:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -s -mwindows -lgraphics -luuid -lmsimg32 -lgdi32 -limm32 -lole32 -loleaut32 -lwinmm -lgdiplus -static
+INCS     = -I"D:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/10.3.0/include" -I"D:/Dev-Cpp/MinGW64/include" -I"D:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/10.3.0/include-fixed" -I"D:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include"
+CXXINCS  = -I"D:/Dev-Cpp/MinGW64/include/c++/10.3.0" -I"D:/Dev-Cpp/MinGW64/include/c++/10.3.0/x86_64-w64-mingw32" -I"D:/Dev-Cpp/MinGW64/include/c++/10.3.0/backward" -I"D:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/10.3.0/include" -I"D:/Dev-Cpp/MinGW64/include" -I"D:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/10.3.0/include-fixed" -I"D:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include"
+BIN      = cpp-Dynamic-Clock-With-EGE.exe
+CXXFLAGS = $(CXXINCS) -O2
+ENCODINGS = -finput-charset=utf-8 -fexec-charset=gbk
+CFLAGS   = $(INCS) -O2
+RM       = del /q /f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "$(BIN)" $(LIBS)
+
+main.o: main.cpp class.h
+	$(CPP) -c main.cpp -o main.o $(CXXFLAGS) 
+
+class.o: class.cpp class.h
+	$(CPP) -c class.cpp -o class.o $(CXXFLAGS) 

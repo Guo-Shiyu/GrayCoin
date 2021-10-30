@@ -3,11 +3,11 @@
 
 
 ## cpp  
-+ Commandline Text Editor   
-    1960    200/0.5h    -   /0.5
++ Commandline Text Editor            
+1960    200/0.5h    -   /0.5
 
-+ Calculate With Designed formula       
-    jj2260  30/1h       -
++ Calculate With Designed formula    
+jj2260  30/1h       +
 
 ## python 
 
