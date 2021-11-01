@@ -1,12 +1,35 @@
 public class LogTrace {
-    String log;
+    OperationKind kind;
+    ToyProduct oldOne;
+    ToyProduct newOne;
 
-    public LogTrace(OperationKind op, ToyProduct product) {
-        this.log = op.toString() + product.toString();
+    public LogTrace(OperationKind op, ToyProduct oldProduct, ToyProduct newOne) {
+        assert op == OperationKind.Purchase || op == OperationKind.Sell;
+        this.kind = op;
+        this.oldOne = oldProduct;
+        this.newOne = newOne;
+    }
+
+    public LogTrace(OperationKind op, ToyProduct newOne) {
+        assert op == OperationKind.Create;  // only in create-toy kind could use this constructor
+        this.kind = op;
+        this.newOne = newOne;
+        this.oldOne = null;
     }
 
     @Override
     public String toString() {
-        return log;
+        String ret;
+        switch (this.kind) {
+            case Create -> ret = "Create:\n Info: " + newOne.getName();
+
+            case Sell -> ret = "Sell:\n Info: From" + oldOne + " To: " + newOne;
+
+            case Purchase -> ret = "Purchase:\n Info: From" + oldOne + " To: " + newOne;
+
+            // unreachable code
+            default -> ret = "";
+        }
+        return ret;
     }
 }

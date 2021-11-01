@@ -21,54 +21,19 @@ SubmitInfo Submit::new_submit(TeamInfo& team, ProblemInfo& prob, Status state, s
 
 bool Team::compare(const TeamInfo& front, const TeamInfo& back)
 {
-    // assistant func define here 
-    auto get_all_ac_subinfo = [](const TeamInfo& team)
-    {
-        auto record = team->record_copy();
-        decltype(record) ret{};
-        for (auto& sub : record)
-            ret.push_back(sub);
-        
-        return ret;
-    };
-
-    auto calcul_penalty = [&](const TeamInfo& team) -> size_t
-    {
-        // P = 20X + Y;
-        auto first_ac_sub = get_all_ac_subinfo(team).front();
-        auto Y = first_ac_sub->time();
-
-        auto X = [&]() 
-        {
-            auto ref = team->record_ref();
-            size_t count = 0;
-            for (auto it = ref.begin(); it != ref.end(); ++it)
-                if (*it != first_ac_sub)
-                    count++;
-                else
-                    break;
-
-            return count;
-        }();
-
-        return 20U * X + Y;
-    };
-
     // main logic 
     if (front->score() != back->score())
         return front->score() > back->score();
     else    // same score
     {
-        auto first = calcul_penalty(front);
-        auto second = calcul_penalty(back);
+        auto first = front->calculate_penalty();
+        auto second = back->calculate_penalty();
         if (first != second)
             return first > second;
         else  // same punish time 
         {
-            
-
-            auto fst_acs = get_all_ac_subinfo(front);
-            auto sec_acs = get_all_ac_subinfo(back);
+            auto fst_acs = front->all_ac_sub();
+            auto sec_acs = back->all_ac_sub();
             if (fst_acs.size() != sec_acs.size())    
                 return fst_acs.size() > sec_acs.size();
             else  // same through problem count
@@ -153,24 +118,26 @@ void SystemProxy::init_map()
             //if (state.is_accepted())
             //    team->incr_score();
 
-            return Result(1, std::nullopt); // su
+            return Result(1, std::nullopt); // su, but no output
 
         });
 
     SystemProxy::Map.emplace(OpKind::Flush,
         [](SystemCore& core, const Instruction::ParamPack& pack) -> Result
         {
-            assert(not core.in_frozen());
-            // recalculate score of each team 
-            for (auto& team : core.teams())
-                team->calculate_score();
+            if (not core.in_frozen())
+            {
+                // recalculate score of each team 
+                for (auto& team : core.teams())
+                    team->calculate_score();
 
-            // sort rank 
-            std::ranges::sort(core.rank(), [](const TeamInfo& front, const TeamInfo& back)
-                {
-                    return front->score() > back->score();
-                });
-
+                // sort rank 
+                std::sort(core.rank().begin(), core.rank().end(), [](const TeamInfo& front, const TeamInfo& back)
+                    {
+                        return Team::compare(front, back);
+                    });
+            }
+            
             return Result(1, std::nullopt); // su
 
         });
@@ -178,28 +145,67 @@ void SystemProxy::init_map()
     SystemProxy::Map.emplace(OpKind::Freeze,
         [](SystemCore& core, const Instruction::ParamPack& pack) -> Result
         {
+            // record freeze time 
+
+
             if (core.in_frozen())   // er
                 return Result(2, std::nullopt);
             else    // su
             {
-                core.blip_freeze_flag();
+                core.blip_freeze_flag(core.submits().back()->time() + 1);   // +1 contains risk
                 assert(core.in_frozen());
                 return Result(1, std::nullopt);
             }
-
-            // unfreeze and flush rank
-            core.blip_freeze_flag();
-            Map.at(OpKind::Flush)(core, Instruction::ParamPack());
-
-            return Result(1, std::nullopt);
 
         });
 
     SystemProxy::Map.emplace(OpKind::Scroll,
         [](SystemCore& core, const Instruction::ParamPack& pack) -> Result
         {
+            // fa: 2, not freeze
+            if (not core.in_frozen())
+                return Result(2, std::nullopt);
+			else
+            {
+                std::string apdx;
+
+                // scroll one team
+                for (auto it = core.teams().rbegin(); it != core.teams().rend(); ++it)
+                {
+                    auto& team = *it;
+                    if (auto& cache = team->buf_ref(); cache.size() > 0) // have submit in freeze 
+                    {
+                        // min problem id 
+                        auto min_it = std::min_element(cache.begin(), cache.end(), [](const SubmitInfo& front, const SubmitInfo& back)
+                            {
+                                return front->problem()->name() < back->problem()->name();
+                            });
+
+                        // unfreeze this problem 
+                        team->record_ref().push_back(*min_it);
+                        cache.erase(min_it);
+
+                        auto& rank = core.rank();
+                        team->calculate_score(); // recalcul score
+                        auto cur_pos = std::lower_bound(rank.begin(), rank.end(), team);
+
+                        // sort locally 
+                        std::sort(rank.begin(), cur_pos, Team::compare);
+                        auto replaced_it = std::lower_bound(rank.begin(), rank.end(), team);
+                        if (replaced_it != rank.end())
+                            ++replaced_it;
+                        if (replaced_it == rank.end())
+                            --replaced_it;
+
+                        apdx.append(SystemProxy::instance()->on_scroll(*replaced_it, team)).push_back('\n');
+                    }
+                }
+
+                return Result(1, apdx);
+            }
             assert(core.in_frozen());
 
+            // todo: must change way, ret with appendix
             for (auto& team : core.teams())
             {
                 for (auto& cached_sub : team->buf_ref())
@@ -207,6 +213,10 @@ void SystemProxy::init_map()
                 team->buf_ref().clear();
                 team->calculate_score();
             }
+            
+            //// unfreeze and flush rank
+            //core.blip_freeze_flag();
+            //Map.at(OpKind::Flush)(core, Instruction::ParamPack());
 
             return Result(1, std::nullopt);
 
@@ -219,7 +229,7 @@ void SystemProxy::init_map()
             
             auto team_opt = core.get_team_by_name(who);
             
-            if(team_opt.has_value())    // er : no such team 
+            if(not team_opt.has_value())    // er : no such team 
                 return Result(2, std::nullopt);
             else
             {
@@ -251,7 +261,6 @@ void SystemProxy::init_map()
                             return info->status().as_enum() == state.as_enum(); 
                     };
                 
-                
                 std::vector<SubmitInfo> perhaps{};
                 perhaps.reserve(team->buf_ref().size() + team->record_ref().size());
                 auto reserve_push = [&](const decltype(perhaps)& container)
@@ -271,8 +280,8 @@ void SystemProxy::init_map()
                     return Result(3, std::nullopt);
                 else    // su : find ther target team 
                     return Result(1, SystemProxy::instance()->on_query_submit(*target_iter));
-
             }
+
         });
 
     SystemProxy::Map.emplace(OpKind::QueryRank,
@@ -298,7 +307,7 @@ void SystemProxy::init_map()
                 // get rank
                 auto& rank = core.rank();
                 size_t position = std::distance(rank.begin(), std::lower_bound(rank.begin(), rank.end(), team));
-                return Result(ret_code, SystemProxy::instance()->on_query_rank(position)); // su | wa, with some appendix 
+                return Result(ret_code, SystemProxy::instance()->on_query_rank(position, team)); // su | wa, with some appendix 
             }
 
         });
@@ -308,6 +317,7 @@ void SystemProxy::init_map()
         {
             // do nothing 
             return Result(1, std::nullopt); // su
+
         });
 
 }

@@ -1,4 +1,3 @@
-/java-Simple-Factory-Pattern/java-Simple-Factory-Pattern.iml
 *.exe
 *.dev
 *.xml
@@ -15,12 +14,14 @@
 *.vcxproj
 *.filters
 *.user
-SJTU/.vs/SJTU/v16/.suo
-SJTU/.vs/SJTU/v16/Browse.VC.db
-SJTU/.vs/SJTU/v16/Browse.VC.db-shm
-SJTU/.vs/SJTU/v16/Browse.VC.db-wal
-SJTU/.vs/SJTU/v16/Browse.VC.opendb
+*.suo
+*.db
+*.db-shm
+*.db-wal
+*.opendb
 *.iml
 *.zip
 *.layout
 *.o
+*.idea 
+

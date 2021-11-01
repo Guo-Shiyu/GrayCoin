@@ -17,98 +17,127 @@
 
 enum class SubStatus : int
 {
-    // only used in query submission 
-    Any = 0,
+	// only used in query submission 
+	Any,
 
-    // available to store 
-    A = 1,
-    W,
-    R,
-    T,
+	// available to store 
+	A,
+	W,
+	R,
+	T,
 };
 
 // wrapper for enum class 'SubStauts'
 class Status
 {
 public:
-    SubStatus status_;
+	SubStatus status_;
 
-    Status() = delete;
-    Status(const Status &) = default;
-    Status(SubStatus status) : status_(status) {}
+	Status() = delete;
+	Status(const Status&) = default;
+	Status(SubStatus status) : status_(status) {}
 
-    SubStatus as_enum() const { return status_; }
-    int as_int() const { return (int)status_; }
-    bool is_accepted() const { return status_ == SubStatus::A; }
+	SubStatus as_enum() const { return status_; }
+	int as_int() const { return (int)status_; }
+	std::string as_str() const
+	{
+		std::string ret;
+		switch (status_)
+		{
+		case SubStatus::A:
+			ret = "Accepted";
+			break;
+		case SubStatus::W:
+			ret = "Wrong_Answer";
+			break;
+		case SubStatus::R:
+			ret = "Runtime_Error";
+			break;
+		case SubStatus::T:
+			ret = "Time_Limit_Exceed";
+			break;
+
+			// followings are unreachable code 
+		case SubStatus::Any:
+			std::terminate();
+			break;
+		default:
+			ret = "!@#$%^&*~-"; // haha 
+			break;
+		}
+		return ret;
+	}
+	bool is_accepted() const { return status_ == SubStatus::A; }
 };
 
 enum class OpKind : int
 {
-    // command with params are less than zero
-    AddTeam = -5,
-    Start = -4,
-    Submit = -3,
-    QueryRank = -2,
-    QuerySub = -1,
+	// command with params are less than zero
+	AddTeam		= -5,
+	Start		= -4,
+	Submit		= -3,
+	QueryRank	= -2,
+	QuerySub	= -1,
 
-    // command without params are greater than zero
-    Flush = 1,
-    Freeze,
-    Scroll,
-    End,
+	// command without params are greater than zero
+	Flush		= 1,
+	Freeze,
+	Scroll,
+	End,
 };
 
 // wrapper for enum class 'OpKind'
 class Operation
 {
 public:
-    OpKind kind_;
+	OpKind kind_;
 
-    Operation() = delete;
-    Operation(const Operation &) = default;
-    Operation(OpKind kind) : kind_(kind) {}
+	Operation() = delete;
+	Operation(const Operation&) = default;
+	Operation(OpKind kind) : kind_(kind) {}
 
-    OpKind as_enum() const { return kind_; }
-    int as_int() const { return (int)kind_; }
+	OpKind	as_enum() const { return kind_; }
+	int		as_int() const { return (int)kind_; }
 };
 
 // name of new team
-using AddTeamArg = std::tuple<std::string>;
+using AddTeamArg	= std::tuple<std::string>;
 
 // competition duration + problem count
-using StartGameArg = std::tuple<size_t, size_t>;
+using StartGameArg	= std::tuple<size_t, size_t>;
 
 // problem name + team name + submit status + submit time
-using SubmitArg = std::tuple<std::string, std::string, Status, size_t>;
+using SubmitArg		= std::tuple<std::string, std::string, Status, size_t>;
 
 //// team name
-using QueryRankArg = AddTeamArg;
+using QueryRankArg	= AddTeamArg;
 
 // team name + problem name + submit status
-using QuerySubArg = std::tuple<std::string, std::string, Status>;
+using QuerySubArg	= std::tuple<std::string, std::string, Status>;
+
 
 // base class for input command ( a line of file '*.in' )
 class Instruction
 {
 public:
-    using ParamPack = std::variant<AddTeamArg, StartGameArg, SubmitArg, QuerySubArg /*QueryRankArg = AddTeamArg*/>;
+	using ParamPack = std::variant<AddTeamArg, StartGameArg, SubmitArg, QuerySubArg /*QueryRankArg = AddTeamArg*/>;
 private:
-    // read-only variable
-    Operation opcode_;
-    ParamPack args_;
+	// read-only variable
+	Operation opcode_;
+	ParamPack args_;
 
 public:
-    Instruction() = delete;
-    Instruction(const Instruction&) = default;
-    Instruction(OpKind no_param_kind) : opcode_(no_param_kind), args_() {}
-    Instruction(OpKind with_param_kind, ParamPack&& arg_pack) : opcode_(with_param_kind), args_(arg_pack) {}
+	Instruction() = delete;
+	Instruction(const Instruction&) = default;
+	Instruction(OpKind no_param_kind) : opcode_(no_param_kind), args_() {}
+	Instruction(OpKind with_param_kind, ParamPack&& arg_pack) : opcode_(with_param_kind), args_(arg_pack) {}
 
-    // especiallly 
-    Instruction(std::tuple<std::string>&& arg, bool is_addteam) : opcode_(is_addteam? OpKind::AddTeam: OpKind::QueryRank), args_(arg){};
+	// especiallly 
+	Instruction(std::tuple<std::string>&& arg, bool is_addteam) : opcode_(is_addteam ? OpKind::AddTeam : OpKind::QueryRank), args_(arg) {};
 
-    const Operation& opcode() const { return opcode_; }
-    bool has_params() const { return this->opcode_.as_int() < 0; }
-    const ParamPack& args() const { return args_; }
+	const Operation& opcode() const { return opcode_; }
+	const ParamPack& args() const { return args_; }
+	bool has_params() const { return this->opcode_.as_int() < 0; }
 };
 
 using Command = std::shared_ptr<Instruction>;

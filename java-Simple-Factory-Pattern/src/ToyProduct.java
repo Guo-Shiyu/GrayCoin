@@ -1,4 +1,4 @@
-public abstract class ToyProduct {
+public class ToyProduct implements Cloneable {
     private int productID;
     private String name;
     private int qty;
@@ -19,6 +19,13 @@ public abstract class ToyProduct {
                 ", cost=" + cost +
                 ", price=" + price +
                 '}';
+    }
+
+    @Override
+    protected ToyProduct clone() throws CloneNotSupportedException {
+        ToyProduct product = null;
+        product = (ToyProduct) super.clone();
+        return product;
     }
 
     public int getProductID() {
