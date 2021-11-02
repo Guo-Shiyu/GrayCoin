@@ -25,3 +25,5 @@
 *.o
 *.idea 
 
+*.lib
+*.exp
