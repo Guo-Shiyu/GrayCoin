@@ -1,4 +1,7 @@
-public class ToyProduct implements Cloneable {
+import java.util.Formatter;
+
+// product base class
+public class ToyProduct implements IToyProduct {
     private int productID;
     private String name;
     private int qty;
@@ -8,6 +11,13 @@ public class ToyProduct implements Cloneable {
     public ToyProduct(int productID, String name) {
         this.productID = productID;
         this.name = name;
+    }
+
+    public String lineFormat() {
+        StringBuilder builder = new StringBuilder();
+        Formatter fmt = new Formatter(builder);
+        fmt.format("%d\t%-4s\t%-4d\t%-4f\t%-4f\t", this.productID, this.name, this.qty, this.cost, this.price);
+        return fmt.toString();
     }
 
     @Override
@@ -22,9 +32,13 @@ public class ToyProduct implements Cloneable {
     }
 
     @Override
-    protected ToyProduct clone() throws CloneNotSupportedException {
+    public ToyProduct clone() {
         ToyProduct product = null;
-        product = (ToyProduct) super.clone();
+        try {
+            product = (ToyProduct) super.clone();
+        } catch (CloneNotSupportedException e) {
+            product = null;
+        }
         return product;
     }
 

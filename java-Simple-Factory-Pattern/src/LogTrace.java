@@ -1,16 +1,17 @@
 public class LogTrace {
     OperationKind kind;
-    ToyProduct oldOne;
-    ToyProduct newOne;
+    IToyProduct oldOne;
+    IToyProduct newOne;
 
-    public LogTrace(OperationKind op, ToyProduct oldProduct, ToyProduct newOne) {
+    // a record of a cmd
+    public LogTrace(OperationKind op, IToyProduct oldProduct, IToyProduct newOne) {
         assert op == OperationKind.Purchase || op == OperationKind.Sell;
         this.kind = op;
         this.oldOne = oldProduct;
         this.newOne = newOne;
     }
 
-    public LogTrace(OperationKind op, ToyProduct newOne) {
+    public LogTrace(OperationKind op, IToyProduct newOne) {
         assert op == OperationKind.Create;  // only in create-toy kind could use this constructor
         this.kind = op;
         this.newOne = newOne;

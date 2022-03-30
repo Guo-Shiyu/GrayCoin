@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from os import system
 import socket
 import sys
 import re
@@ -58,16 +59,16 @@ def startServer(serverAddress, serverPort = 8000):
 
 	#pass # Remove/replace when function is complete
 
+#addtional feature 3
+try:
+   _thread.start_new_thread( startServer, ("localhost", 8081) )
+   _thread.start_new_thread( startServer, ("localhost", 8082) )
+except:
+   print ("Error: can not start new thread")
+
 print("Server start successfully")
 
 startServer("localhost", 8000)
-
-# addtional feature 3
-# try:
-#    _thread.start_new_thread( startServer, ("localhost", 8081) )
-#    _thread.start_new_thread( startServer, ("localhost", 8082) )
-# except:
-#    print ("Error: can not start new thread")
 
 
 # additional feature 4 is in 'WebClient.py'

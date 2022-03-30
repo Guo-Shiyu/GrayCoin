@@ -4,16 +4,22 @@
 
 ## c/cpp  
 
++ Cmd Simple Text Editor 
+    + 55 /  / 
+    + 作业：学习 string 类的使用
+
++ Cache Effect Experiment
+    + 200 / 3h / 1d 
+    + 研究 cache miss 与 乘法运算对于程序运行时间的影响， 并以此猜测 L1, L2, L3 cache 的大小
+
 + Calculate With Designed formula   
     + 30 / 1h / 1d   
     + 用指定公式计算 txt 文件中的数据    
-    + 夜宵钱来了
 
 + Dynamic Clock With EGE  
     + 170 / 10h / 3d     (三号客服 尾款未结算, 首款未领取)
     + 使用 EGE 库完成一个动态时钟, 要求定时器 / 调时间等功能  
     + 类设计的还不错, 可惜后期因为客户需求不明确导致临时返工, 逻辑部分处理的不够优雅  
-    + <<黑客与画家>>中好像说过"永远不要高估你的甲方, 他们自己可能都没弄清楚需求"
 
 + SJTU IPCP Backend Management System  
     + 300 / 26h / 2d / 0.33 
@@ -42,12 +48,10 @@
 + Simple-Inhereit-In-4-Class  
     120 / 1.5h / 1d 
     + 简单的四个类之间的继承
-    + ~~idea 帮我写代码~~
 
 + Simple-Factory-Pattern  
-    170 / 4h / 4d   (宏举 未结账)
+    170 / 4h / 4d   
     + 使用工厂模式与备忘录模式实现一个小 deemo  
-    + 因为被别的单子耽搁导致脱了四天才写完    
     + ~~java正统在C#~~
 
 ## python 
@@ -55,8 +59,6 @@
 + WebServer and WebProxy    
     170 / 2.5h / 1d
     + 从 tcp 流中解析 http 请求头, 返回同目录下请求的文件并以 http 响应包返回。 Proxy 功能与前者相同, 但作为 http 代理服务器在本地缓存文件。 当本地 cache 不存在所请求的文件时请求 webserver 获取所请求的文件并缓存。 
-
-    + 文档, 好东西  
 
 
 ## other  

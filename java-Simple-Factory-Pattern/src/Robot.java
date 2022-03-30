@@ -6,16 +6,18 @@ public class Robot extends ToyProduct {
         this.height = height;
     }
 
+    public String lineFormat() {
+        return super.lineFormat() + this.height + "cm";
+    }
+
     @Override
     public String toString() {
-        return "Robot{" +
-                "height=" + height +
-                ", productID=" + super.getProductID() +
-                ", name='" + super.getName() + '\'' +
-                ", qty=" + super.getQty() +
-                ", cost=" + super.getCost() +
-                ", price=" + super.getPrice() +
-                '}';
+        return "Robot" + " Name='" + super.getName() + '\'' +
+                "\nProductID=" + super.getProductID() +
+                "\nHeight(cm)=" + height +
+                "\nQuantity=" + super.getQty() +
+                "\ncost($)=" + super.getCost() +
+                "\nprice($)=" + super.getPrice();
     }
 
     public double getHeight() {
